@@ -26,13 +26,22 @@ add_executable(fteqcc
 	qcctui.c
 )
 
-set_target_properties(fteqcc PROPERTIES
+add_executable(fteqcdec
+	${COMMON_SOURCES}
+	decomp.c
+	gui.h
+	qccguistuff.c
+	qcdec.c
+)
+
+set_target_properties(fteqcc fteqcdec PROPERTIES
 	COMPILE_DEFINITIONS "NO_ZLIB"
 )
 
 find_library(MATH_LIBRARY m)
 if(MATH_LIBRARY)
 	target_link_libraries(fteqcc PUBLIC ${MATH_LIBRARY})
+	target_link_libraries(fteqcdec PUBLIC ${MATH_LIBRARY})
 endif()
 
 if(${CMAKE_GENERATOR} STREQUAL Xcode)
