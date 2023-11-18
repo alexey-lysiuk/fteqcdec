@@ -1,0 +1,49 @@
+name: CMake CI
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - name: Linux Clang
+            os: ubuntu-22.04
+            extra_options: -DCMAKE_C_COMPILER=clang
+
+          - name: Linux GCC
+            os: ubuntu-22.04
+
+          - name: macOS
+            os: macos-12
+
+          - name: MSVC 32-bit
+            os: windows-2022
+            extra_options: -A Win32
+
+          - name: MSVC 64-bit
+            os: windows-2022
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure
+        shell: bash
+        run: |
+          cmake -B build ${{ matrix.config.extra_options }} .
+
+      - name: Build
+        shell: bash
+        run: |
+          export MAKEFLAGS=--keep-going
+          cmake --build build --config Release --parallel 3
+
+      - name: List Build Directory
+        if: always()
+        shell: bash
+        run: |
+          git status
+          ls -lR build
